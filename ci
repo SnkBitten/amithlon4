@@ -1,0 +1,4 @@
+mount /dev/fd0 /mnt2
+cp arch/i386/boot/bzImage /mnt2
+lilo -r /mnt2
+umount /mnt2

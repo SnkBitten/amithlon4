@@ -1,0 +1,65 @@
+/*
+	<linux/compat/sched.imp>
+
+	some compatibility macros for linux/sched.h
+
+	compiled from kernel sources by Dmitry Fedorov, fedorov@inp.nsk.su
+
+	$Id: sched.imp,v 1.2 2000/05/21 13:43:55 fedorov Exp $
+*/
+
+#ifndef  _LINUX_COMPAT_SCHED_IMP
+# define _LINUX_COMPAT_SCHED_IMP
+
+# include <linux/compat/sched.h>
+# include <linux/kernel.h>	/* printk() */
+
+
+# if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,127)
+
+/* returns rest of timer */
+long schedule_timeout(long timeout)
+{
+	long expire;
+
+	if (timeout==MAX_SCHEDULE_TIMEOUT)
+	{
+		schedule();
+		return timeout;
+	}
+
+	if (timeout < 0)
+	{
+		printk(KERN_ERR "schedule_timeout: wrong timeout "
+			"value %lx from %p\n", timeout, __builtin_return_address(0));
+		return 0;
+	}
+
+	expire = jiffies + timeout;
+	current->timeout = expire;
+
+	schedule();
+
+	timeout = expire - jiffies;
+	return timeout < 0 ? 0 : timeout;
+}
+
+
+/* returns rest of timer */
+long interruptible_sleep_on_timeout(wait_queue_head_t* p, long timeout)
+{
+	DECLARE_WAITQUEUE(wait, current);
+
+	current->state = TASK_INTERRUPTIBLE;
+	add_wait_queue(p, &wait);
+	timeout = schedule_timeout(timeout);
+	remove_wait_queue(p, &wait);
+
+	return timeout;
+}
+
+# endif	/* LINUX_VERSION_CODE < KERNEL_VERSION(2,1,127) */
+
+
+#endif	/* _LINUX_COMPAT_SCHED_IMP */
+

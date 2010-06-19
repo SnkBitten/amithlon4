@@ -1,0 +1,100 @@
+/*
+	<linux/compat/uaccess.imp>
+
+	compatibility user space memory access macros
+
+	clear_user, strlen_user, strncpy_from_user
+
+	to do: __clear_user, __strncpy_from_user (no check)
+
+	These functions are absent in 2.0 kernels.
+
+	Implementation of these functions for 2.0 kernels is very slow -
+	clear_user copy of each byte and string functions does verify_area
+	on each byte.
+
+	compiled from kernel sources by Dmitry Fedorov, fedorov@inp.nsk.su
+
+	$Id: uaccess.imp,v 1.10 2000/05/21 13:43:55 fedorov Exp $
+*/
+
+#ifndef  _LINUX_COMPAT_UACCESS_IMP
+# define _LINUX_COMPAT_UACCESS_IMP
+
+# include <linux/compat/uaccess.h>
+
+
+# if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,4)
+
+
+/*
+ * Return the length of a string (including the ending 0).
+ * Return 0 for error.
+ */
+long strlen_user(const char *ustr)
+{
+	char c;
+	long size=0;
+
+	do
+	{
+		if (GET_USER(c, ustr)) return 0L;
+		++size; ++ustr;
+	} while (c != '\0');
+
+	return size;
+}
+
+
+/*
+ * Copy a null terminated string from userspace.
+ * Return length of string w/o ending 0 or -EFAULT for error.
+ */
+long strncpy_from_user(char *kdst, const char *usrc, long count)
+{
+	long len;
+	int rc;
+
+	for (len=0; count--; kdst++,usrc++,len++)
+	{
+		if ((rc=GET_USER(*kdst, usrc)))
+			return rc;
+		if ( *kdst == '\0' )
+			break;
+	}
+
+	return len;
+}
+
+
+# endif	/* _LINUX_VERSION_CODE < KERNEL_VERSION(2,1,4) */
+
+
+/*
+ * memset of user space ($$ my extension $$).
+ * Return the number of bytes that failed to set.
+ */
+unsigned long memset_user(void* udst, int c, unsigned long len)
+{
+	char buf[64];
+
+	size_t q = len / sizeof(buf);
+	size_t r = len % sizeof(buf);
+
+	if (verify_area(VERIFY_WRITE, udst, len))
+		return len;
+
+	memset(buf, c, sizeof(buf));
+
+	for ( ; q--; ((char*)udst) += sizeof(buf) )
+		COPY_TO_USER_NOCHECK(udst, buf, sizeof(buf));
+
+	if (r!=0)
+		COPY_TO_USER_NOCHECK(udst, buf, r);
+
+	return 0;
+}
+
+
+#endif	/* _LINUX_COMPAT_UACCESS_IMP */
+

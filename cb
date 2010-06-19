@@ -1,0 +1,10 @@
+(
+  cd /newdisk/uae-0.8.8-intel/uae-0.8.15-emubox
+  ./makehaage
+)
+mount /dev/fd0 /mnt2
+rm /mnt2/bootird.gz /mnt2/emubox.gz /mnt2/map
+cp arch/i386/boot/bzImage /mnt2/emubox.gz
+cp /newdisk/bootird.gz /mnt2
+lilo -r /mnt2
+umount /mnt2

@@ -1,0 +1,45 @@
+$Revision: 1.11 $
+$Date: 2000/07/31 10:56:26 $
+$Author: fedorov $
+
+$Log: .release,v $
+Revision 1.11  2000/07/31 10:56:26  fedorov
+module.h, processor.h created;
+file.h: fcheck_task(), fput_compat(), __fput_compat() added;
+system.h: xchg_compat() added (xchg() bug fixing)
+
+Revision 1.10  2000/05/25 07:47:46  fedorov
+all: header format slightly changed;
+atomic.h: ATOMIC_INIT(i) added;
+proc_fs.h: created;
+{sched,tqueue,uaccess,wait}.h: null.h included
+
+Revision 1.9  2000/05/09 09:53:38  fedorov
+errno.h: last change has error; fixed
+
+Revision 1.8  2000/05/08 12:47:12  fedorov
+errno.h: ENOMEDIUM, EMEDIUMTYPE support become arch depended
+
+Revision 1.7  2000/04/08 08:48:20  fedorov
+---
+
+Revision 1.6  2000/02/24 10:04:54  fedorov
+uaccess.h: typo fixed in COPY_TO_USER_NOCHECK() macro
+
+Revision 1.5  2000/02/14 09:54:07  fedorov
+sched.{h,imp}: schedule_timeout(), interruptible_sleep_on_timeout() added
+
+Revision 1.4  2000/01/21 15:43:48  fedorov
+errno.h added: ENOMEDIUM,EMEDIUMTYPE absent in kernels < 2.0.32
+fs.h: file->f_owner support added for kernels < 2.0.31
+
+Revision 1.3  2000/01/20 15:19:08  fedorov
+extra #include removed
+
+Revision 1.2  1999/12/18 13:08:26  fedorov
+NEED_RESCHED defined in sched.h
+
+Revision 1.1  1999/12/03 06:34:56  fedorov
+second public release.
+
+
